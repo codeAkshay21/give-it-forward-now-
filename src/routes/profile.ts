@@ -1,22 +1,27 @@
+// routes/profile.ts
 import express from 'express';
 import { prisma } from '../lib/db';
 
 const router = express.Router();
 
-router.put('/:clerkId', async (req, res) => {
-  const { clerkId } = req.params;
-  const { name, email, imageUrl } = req.body;
+router.put('/:userId', async (req, res) => {
+  const { userId } = req.params;
+  const { full_name, email, avatar_url } = req.body;
 
   try {
-    const updatedUser = await prisma.user.update({
-      where: { clerkId },
-      data: { name, email, imageUrl },
+    const updatedUser = await prisma.profiles.update({
+      where: { id: userId },
+      data: {
+        full_name,
+        email,
+        avatar_url,
+      },
     });
 
     res.json(updatedUser);
   } catch (err) {
     console.error(err);
-    res.status(400).json({ message: 'Failed to update user profile' });
+    res.status(400).json({ message: 'Failed to update profile' });
   }
 });
 

@@ -1,4 +1,3 @@
-
 import { createContext, useContext, ReactNode } from "react";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
@@ -9,9 +8,9 @@ interface AuthContextType {
   userId: string | null;
   userFullName: string | null;
   userEmail: string | null;
-  userImageUrl: string | null;
+  userAvatar: string | null; // ✅ renamed to match what you're using in Profile
   signOut: () => Promise<void>;
-  isNGO: boolean; // Mock flag to determine if user is NGO
+  isNGO: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,26 +19,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
   const { isSignedIn, isLoaded, signOut } = useAuth();
   const { user } = useUser();
-  
-  // This is a simple mock to determine if user is an NGO
-  // In a real app, you would use Clerk's roles/permissions or user metadata
-  const isNGO = user?.emailAddresses.some(email => 
-    email.emailAddress.includes("ngo") || 
-    email.emailAddress.includes("organization")
-  ) || false;
-  
+
+  const isNGO =
+    user?.emailAddresses.some(email =>
+      email.emailAddress.includes("ngo") ||
+      email.emailAddress.includes("organization")
+    ) || false;
+
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
 
-  const value = {
+  const value: AuthContextType = {
     isSignedIn: !!isSignedIn,
     isLoading: !isLoaded,
     userId: user?.id || null,
     userFullName: user?.fullName || null,
     userEmail: user?.primaryEmailAddress?.emailAddress || null,
-    userImageUrl: user?.imageUrl || null,
+    userAvatar: user?.imageUrl || null, // ✅ assigned from Clerk
     signOut: handleSignOut,
     isNGO
   };
